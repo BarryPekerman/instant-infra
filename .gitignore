@@ -1,23 +1,31 @@
-# Terraform
+# Ignore everything
+*
+
+# Whitelist Files
+!*.tf
+!*.tfvars
+!*.sh
+!*.yaml
+!*.yml
+!gitignore
+!.gitignore
+!backend.conf
+!README.md
+
+# Whitelist Directories (so git recurses into them)
+!gitops/
+!gitops/**
+!policies/
+!policies/**
+!modules/
+!modules/**
+
+# Explicit Ignore (Overrides whitelist if needed)
 .terraform/
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
-.terraform.lock.hcl
-*.tfvars
-!example.tfvars
-
-# AWS
 .aws/
-
-# IDE
 .vscode/
 .idea/
-
-# OS
 .DS_Store
-
-# Local scripts
-get_ip.sh
-doit.sh
-setup_backend.sh
-
