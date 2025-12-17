@@ -2,7 +2,7 @@ resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
-  version          = "5.51.6" # Pinning version for stability
+  version          = "7.7.0" # Updated to latest stable
   namespace        = "argocd"
   create_namespace = true
 
@@ -29,7 +29,7 @@ resource "helm_release" "argocd" {
             source = {
               repoURL        = "https://github.com/BarryPekerman/instant-infra.git"
               targetRevision = "main"
-              path           = "gitops/apps"
+              path           = "gitops/bootstrap"
             }
             destination = {
               server    = "https://kubernetes.default.svc"

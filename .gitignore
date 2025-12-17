@@ -1,31 +1,24 @@
-# Ignore everything
+# Ignore everything by default
 *
 
-# Whitelist Files
-!*.tf
-!*.tfvars
-!*.sh
-!*.yaml
-!*.yml
-!gitignore
-!.gitignore
-!backend.conf
-!README.md
+# Explicit Whitelist of Files (No wildcards)
+!terraform/argocd.tf
+!terraform/eks.tf
+!terraform/iam.tf
+!terraform/outputs.tf
+!terraform/provider.tf
+!terraform/variables.tf
+!terraform/versions.tf
+!terraform/vpc.tf
+!gitops/bootstrap/root.yaml
+!gitops/argocd/namespace.yaml
+!gitops/argocd/kustomization.yaml
+!AGENTS.md
+!LICENSE
 
-# Whitelist Directories (so git recurses into them)
+# Directories (Required for git to recurse)
+!terraform/
 !gitops/
-!gitops/**
-!policies/
-!policies/**
-!modules/
-!modules/**
-
-# Explicit Ignore (Overrides whitelist if needed)
-.terraform/
-.terraform.lock.hcl
-*.tfstate
-*.tfstate.backup
-.aws/
-.vscode/
-.idea/
-.DS_Store
+!gitops/argocd/
+!gitops/bootstrap/
+!gitops/platform/

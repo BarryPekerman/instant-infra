@@ -23,12 +23,17 @@ resource "aws_iam_role_policy_attachment" "cluster_policy" {
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.29"
+  version  = "1.33"
 
   vpc_config {
     subnet_ids              = aws_subnet.private[*].id
     endpoint_private_access = true
     endpoint_public_access  = true
+  }
+
+  access_config {
+    authentication_mode                         = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
   }
 
   depends_on = [
@@ -80,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "node_registry_policy" {
   role       = aws_iam_role.node.name
 }
 
-# Basic Node Group for System Tools
+# Basic Node Group for System Tools (The Lifeboat)
 resource "aws_eks_node_group" "system" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "system-tools"
@@ -95,11 +100,15 @@ resource "aws_eks_node_group" "system" {
 
   instance_types = ["t3.medium"]
 
+  taint {
+    key    = "CriticalAddonsOnly"
+    value  = "true"
+    effect = "NO_SCHEDULE"
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.node_worker_policy,
     aws_iam_role_policy_attachment.node_cni_policy,
     aws_iam_role_policy_attachment.node_registry_policy,
   ]
 }
-
-
