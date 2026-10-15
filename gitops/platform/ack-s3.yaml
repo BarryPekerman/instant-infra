@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ack-s3-controller
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: s3-chart
+    repoURL: public.ecr.aws/aws-controllers-k8s
+    targetRevision: 1.0.0 # Check for latest
+    helm:
+      releaseName: ack-s3-controller
+      namespace: ack-system
+      parameters:
+        - name: aws.region
+          value: eu-west-1
+        - name: serviceAccount.create
+          value: "false"
+        - name: serviceAccount.name
+          value: ack-s3-controller
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ack-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
