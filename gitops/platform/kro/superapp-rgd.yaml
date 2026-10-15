@@ -1,0 +1,85 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: superapp
+spec:
+  schema:
+    apiVersion: v1
+    kind: SuperApp
+    spec:
+      openAPIV3Schema:
+        type: object
+        properties:
+          image:
+            type: string
+          size:
+            type: string
+            enum:
+              - small
+              - medium
+              - large
+          database:
+            type: boolean
+        required:
+          - image
+  resources:
+    - id: deployment
+      template:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${metadata.name}
+        spec:
+          replicas: 2
+          selector:
+            matchLabels:
+              app: ${metadata.name}
+          template:
+            metadata:
+              labels:
+                app: ${metadata.name}
+            spec:
+              containers:
+                - name: app
+                  image: ${spec.image}
+                  ports:
+                    - containerPort: 80
+    - id: service
+      template:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: ${metadata.name}
+        spec:
+          selector:
+            app: ${metadata.name}
+          ports:
+            - port: 80
+              targetPort: 80
+    - id: ingress
+      template:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: ${metadata.name}
+          annotations:
+            kubernetes.io/ingress.class: alb
+        spec:
+          rules:
+            - host: ${metadata.name}.dev.example.com
+              http:
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: ${metadata.name}
+                        port:
+                          number: 80
+    - id: bucket
+      when: ${spec.database} == true
+      template:
+        apiVersion: s3.services.k8s.aws/v1alpha1
+        kind: Bucket
+        metadata:
+          name: ${metadata.name}-bucket

@@ -1,0 +1,22 @@
+name: gitops-lint
+
+on:
+  pull_request:
+    paths:
+      - "gitops/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "gitops/**"
+
+jobs:
+  kubeconform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint Kubernetes manifests with kubeconform
+        run: |
+          docker run --rm -v "$PWD":/work -w /work ghcr.io/yannh/kubeconform:latest \
+            -summary -ignore-missing-schemas \
+            $(find gitops -type f \( -name "*.yaml" -o -name "*.yml" \))

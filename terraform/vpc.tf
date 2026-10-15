@@ -30,6 +30,7 @@ resource "aws_subnet" "public" {
     Name                                        = "instant-infra-public-${count.index}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                    = "1"
+    "karpenter.sh/discovery"                    = var.cluster_name
   }
 }
 
@@ -44,6 +45,7 @@ resource "aws_subnet" "private" {
     Name                                        = "instant-infra-private-${count.index}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
+    "karpenter.sh/discovery"                    = var.cluster_name
   }
 }
 

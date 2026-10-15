@@ -59,7 +59,22 @@ instant-infra/
 
 ---
 
-## 4. The Architecture ("Lifeboat vs. Ocean")
+## 4. GitOps Sync Waves (Ordering Strategy)
+
+To avoid race conditions and ensure dependencies are ready, platform components are applied in waves. This pattern is adapted from proven DevSecOps repos that use ArgoCD as the orchestrator.
+
+| Wave | Components |
+| --- | --- |
+| 0 | ArgoCD (self-managed) |
+| 1 | Karpenter, ACK controllers, cert-manager, Kyverno, Trivy, Falco |
+| 2 | KRO definitions, platform policies, ingress stack (ALB + ExternalDNS) |
+| 3 | Workloads (sample apps like `superapp-demo`) |
+
+**Rule:** All changes flow through Git. No `kubectl apply` or `helm install` in production.
+
+---
+
+## 5. The Architecture ("Lifeboat vs. Ocean")
 
 ### Layer 1: The Lifeboat (Static & Safe)
 *   **Managed by:** Terraform.
@@ -84,7 +99,7 @@ instant-infra/
 
 ---
 
-## 5. Implementation Roadmap
+## 6. Implementation Roadmap
 
 ### Phase 1: The Hardened Foundation (Days 1-5)
 *   **Goal:** A working EKS Cluster (Lifeboat) with ArgoCD.
@@ -110,4 +125,6 @@ instant-infra/
 *   **Steps:**
     1.  **ChatOps:** ArgoCD Notifications to Slack.
     2.  **Documentation:** "Timmy the Junior Dev" user guide.
+
+---
 

@@ -1,0 +1,20 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: limit-memory-requests
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: enforce-max-memory-request
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Memory request must be <= 4Gi"
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  requests:
+                    memory: "<=4Gi"

@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: external-dns
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    targetRevision: 1.14.5
+    helm:
+      releaseName: external-dns
+      namespace: external-dns
+      parameters:
+        - name: provider
+          value: aws
+        - name: aws.region
+          value: eu-west-1
+        - name: policy
+          value: upsert-only
+        - name: registry
+          value: txt
+        - name: txtOwnerId
+          value: instant-infra
+        - name: serviceAccount.create
+          value: "false"
+        - name: serviceAccount.name
+          value: external-dns
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

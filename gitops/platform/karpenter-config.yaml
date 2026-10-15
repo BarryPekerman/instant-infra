@@ -1,0 +1,47 @@
+apiVersion: karpenter.sh/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: instant-infra-cluster # <--- IMPORTANT: We need to tag subnets
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: instant-infra-cluster # <--- IMPORTANT: We need to tag SGs
+  role: karpenter-node-role # <--- Matches terraform/iam.tf
+  tags:
+    Name: karpenter-node
+    Project: Instant-Infra
+
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot"] # Cost optimization!
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: In
+          values: ["c", "m", "r"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["2"]
+  limits:
+    cpu: 1000
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h
+
+
